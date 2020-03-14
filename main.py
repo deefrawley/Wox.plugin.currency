@@ -191,7 +191,7 @@ class Main(Wox):
                         ratedict = self.populate_rates('eurofxref-daily.xml')
                         conv = self.currconv(ratedict, args[1], args[2], args[0])
                         results.append({
-                            "Title": "{} {} = {} {}".format(args[0], args[1].upper(), decimal.Decimal(conv[1]), args[2].upper()),
+                            "Title": "{} {} = {} {} (1 {} = {} {})".format(args[0], args[1].upper(), decimal.Decimal(conv[1]), args[2].upper(), args[1].upper(), decimal.Decimal(conv[1]/decimal.Decimal(args[0])),args[2].upper()),
                             "SubTitle": "Rates date : {}".format(conv[0]),
                             "IcoPath":"Images/app.png",
                             "ContextData": "ctxData"

@@ -4,6 +4,7 @@ import decimal
 import xml.etree.ElementTree as ET
 import os
 import datetime
+import math
 from wox import Wox
 
 
@@ -126,7 +127,18 @@ class Main(Wox):
         """
         
         converted = []
-        decimal.getcontext().prec = 5
+        
+        # Change the decimal precision to match the number of digits in the amount
+        # so it will display correctly
+        places = int(amount)
+        if places > 0:
+            digits = int(math.log10(places))+1
+        elif places == 0:
+            digits = 1
+        else:
+            digits = int(math.log10(-places))+2 # +1 if you don't count the '-' 
+        decimal.getcontext().prec = digits
+
         destrate = 0.0
         if destcurr.upper() == 'EUR':
             for rate in rates:

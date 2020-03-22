@@ -130,14 +130,21 @@ class Main(Wox):
         
         # Change the decimal precision to match the number of digits in the amount
         # so it will display correctly
-        places = int(amount)
+        # First get integer digits
+        places = int(float(amount))
         if places > 0:
             digits = int(math.log10(places))+1
         elif places == 0:
             digits = 1
         else:
             digits = int(math.log10(-places))+2 # +1 if you don't count the '-' 
-        decimal.getcontext().prec = digits
+        # Now get fractional digits
+        if "." in amount:
+            frac = len(amount.split(".")[1].rstrip("0"))
+        else:
+            frac = 0
+                      
+        decimal.getcontext().prec = digits+frac
 
         destrate = 0.0
         if destcurr.upper() == 'EUR':
@@ -168,7 +175,6 @@ class Main(Wox):
     def query(self, query):
         results = []
         args = query.split(' ')
-        decimal.getcontext().prec = 5
         currencies = ['AUD' , 'BGN' , 'BRL' , 'CAD' , 'CHF' , 'CNY' , 'CZK' , 'DKK' , 'GBP', 'HKD' , 'HRK' , 'HUF' , 'IDR' , 'ILS' , 'INR' , 'ISK' , 'JPY' , 'KRW', 'MXN','MYR' , 'NOK' , 'NZD' , 'PHP' , 'PLN' , 'RON' , 'RUB' , 'SEK', 'SGD' , 'THB' , 'TRY' , 'USD' , 'ZAR' , 'EUR']
         if len(args) == 3:
             # Check first argument is valid currency code
@@ -203,7 +209,7 @@ class Main(Wox):
                         ratedict = self.populate_rates('eurofxref-daily.xml')
                         conv = self.currconv(ratedict, args[1], args[2], args[0])
                         results.append({
-                            "Title": "{} {} = {} {} (1 {} = {} {})".format(args[0], args[1].upper(), decimal.Decimal(conv[1]), args[2].upper(), args[1].upper(), decimal.Decimal(conv[1]/decimal.Decimal(args[0])),args[2].upper()),
+                            "Title": "{} {} = {} {} (1 {} = {} {})".format(args[0], args[1].upper(), decimal.Decimal(conv[1]), args[2].upper(), args[1].upper(), decimal.Decimal(conv[1])/decimal.Decimal(args[0]),args[2].upper()),
                             "SubTitle": "Rates date : {}".format(conv[0]),
                             "IcoPath":"Images/app.png",
                             "ContextData": "ctxData"
@@ -211,7 +217,7 @@ class Main(Wox):
                     # Show exceptions (for debugging as much as anything else)
                     except Exception as e:
                         results.append({
-                            "Title": "Error - {}".format(str(e)),
+                            "Title": "Error - {}".format(repr(e)),
                             "IcoPath":"Images/app.png",
                             "ContextData": "ctxData"
                         })
